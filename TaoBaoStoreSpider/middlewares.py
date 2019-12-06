@@ -11,8 +11,8 @@ import sys
 import logging
 import configparser
 import time
-from TaoBaoStoreSpider import conf
-
+import conf
+from random import choice
 
 class TaobaostorespiderSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -170,3 +170,31 @@ class ProxyMiddleware(object):
             logging.debug("未设置代理IP")
             sys.exit(0)
         logging.info('使用的代理:'+proxy_ip)
+
+
+class RandomUserAgentMiddleware(object):
+    user_agent_list = [
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1",
+        "Mozilla/5.0 (X11; CrOS i686 2268.111.0) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1092.0 Safari/536.6",
+        "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1090.0 Safari/536.6",
+        "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/19.77.34.5 Safari/537.1",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.9 Safari/536.5",
+        "Mozilla/5.0 (Windows NT 6.0) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.36 Safari/536.5",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3",
+        "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1063.0 Safari/536.3",
+        "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; SE 2.X MetaSr 1.0; SE 2.X MetaSr 1.0; .NET CLR 2.0.50727; SE 2.X MetaSr 1.0)",
+        "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1062.0 Safari/536.3",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1062.0 Safari/536.3",
+        "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; 360SE)",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3",
+        "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3",
+        "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.0 Safari/536.3",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24",
+        "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24"
+    ]
+    def process_request(self, request, spider):
+        ua = choice(self.user_agent_list)
+        request.headers.setdefault('User-Agent', ua)
+        request.headers.setdefault('Accept', '*/*')
+        request.headers.setdefault('cookie', 'cna=tZ3zFZ6GUksCAQ4SlGJNqRr/; hng=CN%7Czh-CN%7CCNY%7C156; lid=ydyxfc; enc=cB6OUnSPrsisxZ0UzwbFbNogpLwRnR9Ry6936jftcyCWGtzUdMr6vSPv1YdxXPhtZL%2BESio2RxS1wJ4r3iL7Vg%3D%3D; otherx=e%3D1%26p%3D*%26s%3D0%26c%3D0%26f%3D0%26g%3D0%26t%3D0; x=__ll%3D-1%26_ato%3D0; dnk=ydyxfc; _m_h5_tk=e6ef1a69d89b9983e0629af8a7c738bd_1575617118355; _m_h5_tk_enc=77177ba950da58a59ccf426218b6f069; uc4=nk4=0%40GINykxWkHKzDS3d3h9Oobn4%3D&id4=0%40UO6QoO1NXNuDPAcMqXFU%2BEwSDThV; cookie2=16fe9705625ff6b9f1c6061ef27d0f9a; t=f0e599b3af0b72018e96d629904b0ae1; csg=77126f2f; _tb_token_=e316fe59137bb; l=dB_Q490rqyLFYf--BOCZlurza77TAIRfguPzaNbMi_5dt1L_DkbOkhG1fep6cjWcGVYB4dH2-seTxecYWPTaHkb4znvGongWBef..; x5sec=7b227477736d3b32223a223433336636353239633965626262353232323533656363643732623133323466434b2f41702b3846454e4b4c684c364469654c363567453d227d; isg=BBMTRQ9yStOxuwYeeU-Ny7Vfopc9yKeK1qPdtsUwbzJpRDPmTZg32nHWevKPZP-C')

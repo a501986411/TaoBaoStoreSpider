@@ -16,6 +16,14 @@ class TaobaostorespiderItem(scrapy.Item):
     monthly_sales = scrapy.Field()
     # 首图
     cover_img = scrapy.Field()
+    # 商品详情页地址
+    detail_url = scrapy.Field()
+    # 商品价格
+    price = scrapy.Field()
     # 结果标识
     result = scrapy.Field()
+    # 店铺id
+    shop_id = scrapy.Field()
+    # seller_id
+    seller_id = scrapy.Field()
     pass

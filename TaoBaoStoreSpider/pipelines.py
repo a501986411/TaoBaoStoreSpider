@@ -40,11 +40,11 @@ class TaobaostorespiderPipeline(object):
             cursor.execute(sql)
             # 执行更新语句
             if self.goods_is_exist(item['goods_id']):
-                u_sql = "update etb_follow_store_goods set title='%s',monthly_sales=%s,cover_img='%s', detail_url='%s' where goods_id=%s" % \
+                u_sql = "update etb_goods set title='%s',monthly_sales=%s,cover_img='%s', detail_url='%s' where goods_id=%s" % \
                         (item['title'], item['monthly_sales'], item['cover_img'], item['detail_url'], item['goods_id'])
                 cursor.execute(u_sql)
             else:
-                i_sql = "INSERT INTO etb_follow_store_goods (goods_id, title, detail_url, monthly_sales, cover_img, shop_id, seller_id)  VALUES (%s, '%s', '%s', %s, '%s', %s, %s)" % \
+                i_sql = "INSERT INTO etb_goods (goods_id, title, detail_url, monthly_sales, cover_img, shop_id, seller_id)  VALUES (%s, '%s', '%s', %s, '%s', %s, %s)" % \
                         (item['goods_id'], item['title'], item['detail_url'], item['monthly_sales'], item['cover_img'], item['shop_id'], item['seller_id'])
                 cursor.execute(i_sql)
             self.db.commit()
@@ -53,7 +53,7 @@ class TaobaostorespiderPipeline(object):
             self.db.rollback()
 
     def goods_is_exist(self, goods_id):
-        sql = "select * from etb_follow_store_goods where goods_id=%s" % \
+        sql = "select * from etb_goods where goods_id=%s" % \
               (goods_id)
         cursor = self.db.cursor(cursor=pymysql.cursors.DictCursor)
         cursor.execute(sql)

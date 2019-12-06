@@ -7,7 +7,9 @@ import requests
 from lxml import etree
 import logging
 import sys
+import time
 import json
+from urllib import parse
 from TaoBaoStoreSpider.items import TaobaostorespiderItem
 class StoreJobSpider(scrapy.Spider):
     user_agent_list = [
@@ -37,7 +39,7 @@ class StoreJobSpider(scrapy.Spider):
     conf = conf.conf()
     type_tb = 1
     type_tm = 2
-    tm_url = "https://%s.m.tmall.com/shop/shop_auction_search.do?suid=%s&sort=d&p=%s&page_size=12&from=h5&shop_id=%s&ajson=1&_tm_source=tmallsearch&callback=jsonp_95407611"
+    tm_url = "https://%s.m.tmall.com/shop/shop_auction_search.do?suid=%s&sort=d&p=%s&page_size=24&from=h5&shop_id=%s&ajson=1&_tm_source=tmallsearch&callback=jsonp_95407611"
     def __init__(self):
         super().__init__(scrapy.Spider)
         self.set_db()
@@ -61,6 +63,7 @@ class StoreJobSpider(scrapy.Spider):
             item['title'] = row['title']
             item['cover_img'] = row['img']
             item['monthly_sales'] = row['sold']
+            # item['monthly_sales'] = self.get_monthly_sales_info(item['goods_id'])
             item['detail_url'] = row['url']
             item['price'] = row['price']
             item['shop_id'] = json_text['shop_id']
@@ -69,9 +72,10 @@ class StoreJobSpider(scrapy.Spider):
             num += 1
             if num == count:
                 if count == int(json_text['page_size']):
-                    next_page_url = response.url.replace("p="+json_text['current_page'], "p="+str(int(json_text['current_page']) + 1))
-                    if next_page_url:
-                        yield scrapy.Request(next_page_url, callback=self.parse)
+                    # next_page_url = response.url.replace("p="+json_text['current_page'], "p="+str(int(json_text['current_page']) + 1))
+                    # if next_page_url:
+                    #     yield scrapy.Request(next_page_url, callback=self.parse)
+                    pass
             yield item
 
     def set_start_urls(self):
@@ -127,4 +131,33 @@ class StoreJobSpider(scrapy.Spider):
         cf = configparser.ConfigParser()
         cf.read(self.conf.get_db_conf(), encoding="utf-8")
         self.db = pymysql.connect(cf.get('db', 'db_host'), cf.get('db', 'db_user'), cf.get('db', 'db_pwd'), cf.get('db', 'db_database'))
+
+    def get_monthly_sales_info(self, goods_id):
+        param = {
+            "jsv": "2.5.1",
+            "appKey": 12574478,
+            "t": int(time.time() * 1000),
+            # "sign": "08ca47d1bf4ac9d0a8c297fe0980c9b6",
+            "api": "mtop.taobao.detail.getdetail",
+            "v": "6.0",
+            "ttid": "2017@htao_h5_1.0.0",
+            "type": "jsonp",
+            "dataType": "jsonp",
+            "callback": "mtopjsonp1",
+            "data": json.dumps({"exParams": "{\"countryCode\":\"CN\"}", "itemNumId": str(goods_id)})
+        }
+        url = "https://h5api.m.taobao.com/h5/mtop.taobao.detail.getdetail/6.0/?" + parse.urlencode(param).replace('+', '')
+        res = requests.get(url)
+        text = res.text.replace("mtopjsonp1(","").replace(")","")
+        json_text = json.loads(text)
+        monthly_sales = 0
+        if 'item' not in json_text['data']:
+            return monthly_sales
+        else:
+            goods_item = json.loads(json_text['data']['apiStack'][0]['value'])
+            if 'sellCount' in goods_item['item']:
+                monthly_sales = goods_item['item']['sellCount']
+            else:
+                monthly_sales = goods_item['item']['vagueSellCount']
+        return monthly_sales
 

@@ -75,7 +75,7 @@ class StoreJobSpider(scrapy.Spider):
             yield item
 
     def set_start_urls(self):
-        sql = "select fs.id,fs.domain,fs.seller_id,fs.shop_id,fs.type from etb_user_store us LEFT JOIN etb_follow_store fs on us.follow_store_id = fs.id where us.is_follow = 1"
+        sql = "select fs.id,fs.domain,fs.unique_key,fs.seller_id,fs.shop_id,fs.type from etb_user_store us LEFT JOIN etb_follow_store fs on us.follow_store_id = fs.id where us.is_follow = 1"
         cursor = self.db.cursor(cursor = pymysql.cursors.DictCursor)
         cursor.execute(sql)
         urls = []
@@ -90,7 +90,7 @@ class StoreJobSpider(scrapy.Spider):
             if row['type'] == self.type_tb:
                 pass
             else:
-                tmp_url = self.tm_url % (row['domain'], row['seller_id'], 1, row['shop_id'])
+                tmp_url = self.tm_url % (row['unique_key'], row['seller_id'], 1, row['shop_id'])
                 urls.append(tmp_url)
         self.start_urls = urls
 
@@ -99,7 +99,7 @@ class StoreJobSpider(scrapy.Spider):
         if store_type == self.type_tb:
             pass
         else:
-            url = "https://" + store_domain + ".m.tmall.com/"
+            url = store_domain + '/'
             res = requests.get(url)
             html = etree.HTML(res.text)
             seller_id = html.xpath('//input[@id="sid"]')[0].get('value')

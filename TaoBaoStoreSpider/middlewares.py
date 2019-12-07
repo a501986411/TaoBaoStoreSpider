@@ -13,6 +13,7 @@ import configparser
 import time
 import conf
 from random import choice
+import json
 
 class TaobaostorespiderSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -146,6 +147,10 @@ class ProxyMiddleware(object):
                     logging.error(response.text)
                     sys.exit(0)
                 else:
+                   json_text = json.loads(response.text)
+                   if "code" in json_text:
+                       proxy_ip = self.get_ip_by_url()
+                   else:
                     proxy_ip = response.text.strip()
                     self.proxy_cf.set('proxy', 'ip', proxy_ip)
                     self.proxy_cf.set('proxy', 'get_ip_time', time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
